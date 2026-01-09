@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongo
 
 const invoiceSchema = new mongoose.Schema({
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School', required: true },
@@ -16,4 +16,4 @@ const invoiceSchema = new mongoose.Schema({
   transactionId: String
 }, { timestamps: true });
 
-module.exports = mongoose.model('Invoice', invoiceSchema);
+export default mongoose.model('Invoice', invoiceSchema);
