@@ -1,12 +1,12 @@
-const Student = require('../models/Student');
+// controllers/studentController.js
+import Student from '../model/Student.js';
 
-exports.addStudent = async (req, res) => {
+export const addStudent = async (req, res) => {
   try {
     const studentData = {
       ...req.body,
       schoolId: req.user.schoolId 
     };
-
     const student = await Student.create(studentData);
     res.status(201).json({ success: true, data: student });
   } catch (error) {
@@ -14,8 +14,7 @@ exports.addStudent = async (req, res) => {
   }
 };
 
-
-exports.getAllStudents = async (req, res) => {
+export const getAllStudents = async (req, res) => {
   try {
     const students = await Student.find({ schoolId: req.user.schoolId });
     res.status(200).json({ success: true, count: students.length, data: students });

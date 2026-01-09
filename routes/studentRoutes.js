@@ -1,13 +1,15 @@
-const express = require('express');
+// routes/studentRoutes.js
+import express from 'express';
+import { addStudent, getAllStudents } from '../controllers/studentController.js';
+// import { protect } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
-const { addStudent, getAllStudents } = require('../controllers/studentController');
-const { protect } = require('../middlewares/authMiddleware');
 
-
-router.use(protect);
+// Protect all routes
+// router.use(protect);
 
 router.route('/')
   .post(addStudent)
   .get(getAllStudents);
 
-module.exports = router;
+export default router;

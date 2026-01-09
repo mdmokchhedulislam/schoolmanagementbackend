@@ -1,0 +1,15 @@
+// Example Payment Verification Route
+exports.verifyPayment = async (req, res) => {
+  const { status, trxnID, invoiceID } = req.body; // বিকাশ থেকে আসা ডেটা
+
+  if (status === 'success') {
+    await Invoice.findByIdAndUpdate(invoiceID, {
+      status: 'paid',
+      transactionId: trxnID,
+      paidAmount: req.body.amount
+    });
+    res.redirect('https://your-school-portal.com/payment-success');
+  } else {
+    res.redirect('https://your-school-portal.com/payment-failed');
+  }
+};

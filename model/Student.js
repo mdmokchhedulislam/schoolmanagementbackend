@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+
+import mongoose from 'mongoose';
 
 const studentSchema = new mongoose.Schema({
   schoolId: { 
@@ -15,6 +16,7 @@ const studentSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'inactive'], default: 'active' }
 }, { timestamps: true });
 
+
 studentSchema.index({ schoolId: 1, rollNo: 1 }, { unique: true });
 
-module.exports = mongoose.model('Student', studentSchema);
+export default mongoose.model('Student', studentSchema);

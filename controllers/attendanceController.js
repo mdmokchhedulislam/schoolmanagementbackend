@@ -1,6 +1,7 @@
-const Attendance = require('../models/Attendance');
+// controllers/attendanceController.js
+import Attendance from '../models/Attendance.js';
 
-exports.markAttendance = async (req, res) => {
+export const markAttendance = async (req, res) => {
   try {
     const { attendanceData, date, className, section } = req.body;
     const schoolId = req.user.schoolId;
@@ -31,9 +32,10 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
-exports.getAttendanceReport = async (req, res) => {
+export const getAttendanceReport = async (req, res) => {
   try {
     const { date, className, section } = req.query;
+
     const report = await Attendance.find({
       schoolId: req.user.schoolId,
       date: new Date(date),

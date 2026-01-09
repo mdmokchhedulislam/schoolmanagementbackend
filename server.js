@@ -1,23 +1,39 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const mongoose = require('mongoose');
+// index.js
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import mongoose from 'mongoose';
+
+// Import routes
+import studentRoutes from './routes/studentRoutes.js';
+import schoolRoutes from './routes/schoolRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/authRoutes.js';
+
 
 dotenv.config();
 const app = express();
 
 // Middlewares
+
 app.use(cors());
 app.use(express.json());
-app.use('/api/v1/students', require('./routes/studentRoutes'));
 
-// Database Connection
-mongoose.connect("mongodb+srv://mokchheduls46:mokchhedul@cluster0.cxqeo.mongodb.net/saas?retryWrites=true&w=majority&appName=Cluster0")
-  .then(() => console.log("✅ MongoDB Connected for Successfully"))
-  .catch(err => console.error("❌ DB Connection Error:", err));
+// Routes
+app.use('/api/v1/students', studentRoutes);
+app.use('/api/v1/schools', schoolRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
-// Test Route
+
 app.get('/', (req, res) => res.send("SaaS School API is Running..."));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+// Database Connection
+const MONGO_URI = process.env.MONGO_URI 
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log(" MongoDB Connected Successfully"))
+  .catch(err => console.error(" DB Connection Error:", err));
+
+const PORT = process.env.PORT ;
+app.listen(PORT, () => console.log(` Server running on port ${PORT}`));

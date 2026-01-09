@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+
+import mongoose from 'mongoose';
 
 const schoolSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -12,4 +13,4 @@ const schoolSchema = new mongoose.Schema({
   contactEmail: { type: String, unique: true, required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('School', schoolSchema);
+export default mongoose.model('School', schoolSchema);
