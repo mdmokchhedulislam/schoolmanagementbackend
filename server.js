@@ -9,6 +9,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use('/api/v1/students', require('./routes/studentRoutes'));
 
 // Database Connection
 mongoose.connect("mongodb+srv://mokchheduls46:mokchhedul@cluster0.cxqeo.mongodb.net/saas?retryWrites=true&w=majority&appName=Cluster0")
