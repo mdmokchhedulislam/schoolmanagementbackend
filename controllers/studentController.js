@@ -1,50 +1,87 @@
-import Student from '../model/Student.js';
-// Role check helper
-const checkStudentRole = (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ success: false, message: "Access denied: only admin can access student and teacher data" });
-  }
-};
+import mongoose from 'mongoose';
+import Student from '../model/Student.js'
+import Enrollment from '../model/Enrollment.js';
 
-
-//  Add Student
 export const addStudent = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const studentData = { ...req.body, schoolId: req.user.schoolId };
-    const student = await Student.create(studentData);
-    res.status(201).json({ success: true, data: student });
+    const { 
+      name, 
+      currentClass,      
+      section, 
+      rollNo, 
+      currentAcademicYear,
+      guardianContact,
+      address 
+    } = req.body;
+
+    const schoolId = req.user.schoolId; 
+
+  
+    const student = await Student.create([{
+      schoolId,
+      name,
+      currentClass,       
+      currentAcademicYear, 
+      section,
+      rollNo,
+      guardianContact,
+      address
+    }], { session });
+
+    await Enrollment.create([{
+      schoolId,
+      studentId: student[0]._id,
+      classId: currentClass,       
+      academicYear: currentAcademicYear, 
+      section,
+      rollNo
+    }], { session });
+
+    await session.commitTransaction();
+    res.status(201).json({ 
+      success: true, 
+      message: "Student profile and enrollment created successfully!" 
+    });
+
   } catch (error) {
+    await session.abortTransaction();
     res.status(400).json({ success: false, error: error.message });
+  } finally {
+    session.endSession();
   }
 };
+
 
 export const getAllStudents = async (req, res) => {
   try {
-    const students = await Student.find({ 
-      schoolId: req.user.schoolId, 
-    });
+    const students = await Student.find({ schoolId: req.user.schoolId })
+      .populate('currentClass', 'className') 
+      .populate('currentAcademicYear', 'year') 
+      .sort({ createdAt: -1 }); 
 
-    // console.log("student is ", students);
     res.status(200).json({ 
       success: true, 
       count: students.length, 
       data: students 
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Server Error" });
+    res.status(500).json({ success: false, error: "server error" });
   }
 };
 
 
-// Get single student by ID
 export const getStudentById = async (req, res) => {
-  const roleCheck = checkStudentRole(req, res);
-  if (roleCheck) return roleCheck;
-
   try {
-    const { id } = req.params;
-    const student = await Student.findOne({ _id: id, schoolId: req.user.schoolId });
-    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+    const student = await Student.findOne({ 
+      _id: req.params.id, 
+      schoolId: req.user.schoolId 
+    }).populate('currentClass currentAcademicYear');
+
+    if (!student) return res.status(404).json({ message: "student not found" });
+
     res.status(200).json({ success: true, data: student });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -52,49 +89,52 @@ export const getStudentById = async (req, res) => {
 };
 
 
-// Update student
 export const updateStudent = async (req, res) => {
-  const roleCheck = checkStudentRole(req, res);
-  if (roleCheck) return roleCheck;
-
   try {
-    const { id } = req.params;
-    const updatedStudent = await Student.findOneAndUpdate(
-      { _id: id, schoolId: req.user.schoolId },
+    const student = await Student.findOneAndUpdate(
+      { _id: req.params.id, schoolId: req.user.schoolId },
       req.body,
-      { new: true }
+      { new: true, runValidators: true }
     );
-    if (!updatedStudent) return res.status(404).json({ success: false, message: "Student not found" });
-    res.status(200).json({ success: true, data: updatedStudent });
+
+    if (!student) return res.status(404).json({ message: "student not found" });
+
+  
+    await Enrollment.findOneAndUpdate(
+      { studentId: student._id, schoolId: req.user.schoolId },
+      { 
+        classId: student.currentClass, 
+        section: student.section, 
+        rollNo: student.rollNo 
+      }
+    );
+
+    res.status(200).json({ success: true, data: student });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error: error.message });
   }
 };
 
-// Delete student
+
+
 export const deleteStudent = async (req, res) => {
-  const roleCheck = checkStudentRole(req, res);
-  if (roleCheck) return roleCheck;
-
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const { id } = req.params;
-    const deletedStudent = await Student.findOneAndDelete({ _id: id, schoolId: req.user.schoolId });
-    if (!deletedStudent) return res.status(404).json({ success: false, message: "Student not found" });
-    res.status(200).json({ success: true, message: "Student deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
+    const studentId = req.params.id;
+    const schoolId = req.user.schoolId;
 
-// Get total number of students
-export const getStudentCount = async (req, res) => {
-  const roleCheck = checkStudentRole(req, res);
-  if (roleCheck) return roleCheck;
+    const deletedStudent = await Student.findOneAndDelete({ _id: studentId, schoolId });
+    if (!deletedStudent) throw new Error("Student not found");
 
-  try {
-    const count = await Student.countDocuments({ schoolId: req.user.schoolId });
-    res.status(200).json({ success: true, totalStudents: count });
+    await Enrollment.deleteMany({ studentId, schoolId }, { session });
+
+    await session.commitTransaction();
+    res.status(200).json({ success: true, message: "Student and records deleted!" });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    await session.abortTransaction();
+    res.status(400).json({ success: false, error: error.message });
+  } finally {
+    session.endSession();
   }
 };

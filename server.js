@@ -9,6 +9,8 @@ import studentRoutes from './routes/studentRoutes.js';
 import schoolRoutes from './routes/schoolRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/authRoutes.js';
+import academicYearRoutes from "./routes/academicYearRoutes.js"
+import classRoutes from './routes/classRoutes.js'
 
 
 dotenv.config();
@@ -24,6 +26,8 @@ app.use('/api/v1/students', studentRoutes);
 app.use('/api/v1/schools', schoolRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/academicyear', academicYearRoutes);
+app.use('/api/v1/class', classRoutes);
 
 
 app.get('/', (req, res) => res.send("SaaS School API is Running..."));
