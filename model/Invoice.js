@@ -1,4 +1,4 @@
-import mongo
+import mongoose from "mongoose";
 
 const invoiceSchema = new mongoose.Schema({
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School', required: true },

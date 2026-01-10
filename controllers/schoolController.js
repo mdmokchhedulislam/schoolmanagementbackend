@@ -67,3 +67,49 @@ export const getSchoolProfile = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+
+// GET /api/v1/school/all
+// export const getAllSchools = async (req, res) => {
+//   try {
+//     const schools = await School.find({});
+//     res.status(200).json({ success: true, data: schools });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// };
+
+
+// PUT /api/v1/school/:id
+// export const updateSchool = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updatedSchool = await School.findByIdAndUpdate(
+//       id,
+//       req.body, // তুমি চাইলে শুধু কিছু field allow করতে পারো
+//       { new: true }
+//     );
+
+//     if (!updatedSchool) return res.status(404).json({ message: "School not found" });
+
+//     res.status(200).json({ success: true, data: updatedSchool });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// };
+
+
+// DELETE /api/v1/school/:id
+// export const deleteSchool = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const deletedSchool = await School.findByIdAndDelete(id);
+
+//     if (!deletedSchool) return res.status(404).json({ message: "School not found" });
+
+//     res.status(200).json({ success: true, message: "School deleted successfully" });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// };
+
